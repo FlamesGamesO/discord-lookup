@@ -7,7 +7,6 @@ module.exports = async (req, res) => {
     return res.status(400).json({ error: "Missing userId parameter" });
   }
 
-  // Your BOT_TOKEN will be provided via Vercel's Environment Variables
   const BOT_TOKEN = process.env.BOT_TOKEN;
   if (!BOT_TOKEN) {
     return res.status(500).json({ error: "BOT_TOKEN environment variable is not set" });
