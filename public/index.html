@@ -131,9 +131,32 @@
         justify-content: center;
         background-color: rgba(0, 0, 0, 0.6);
         z-index: 1000;
+        opacity: 0;
+        transform: translateY(-20px);
+        animation: modalFadeIn 0.5s forwards;
       }
-      #popupModal.hidden {
-        display: none;
+      #popupModal.fadeOut {
+        animation: modalFadeOut 0.5s forwards;
+      }
+      @keyframes modalFadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes modalFadeOut {
+        from {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        to {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
       }
       #popupModal .modal-content {
         background: #1f2937; /* Tailwind gray-800 */
@@ -141,7 +164,7 @@
         overflow: hidden;
         max-width: 90%;
         width: 400px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
         position: relative;
       }
       #popupModal .close-btn {
@@ -150,6 +173,8 @@
         right: 0.75rem;
         font-size: 1.5rem;
         cursor: pointer;
+        z-index: 10;
+        color: #ffffff;
       }
     </style>
   </head>
@@ -231,7 +256,7 @@
     <!-- Modal Popup for Results -->
     <div id="popupModal" class="hidden">
       <div class="modal-content relative">
-        <span id="closeModal" class="close-btn text-white">&times;</span>
+        <span id="closeModal" class="close-btn">&times;</span>
         <div id="modalContent" class="p-4"></div>
       </div>
     </div>
@@ -247,14 +272,13 @@
       const navLinks = document.querySelectorAll(".nav-link");
       const lookupSection = document.getElementById("lookupSection");
       const aboutSection = document.getElementById("aboutSection");
+
       navLinks.forEach(link => {
         link.addEventListener("click", () => {
           navLinks.forEach(l => l.classList.remove("nav-active"));
           link.classList.add("nav-active");
-          // Hide all sections
           lookupSection.classList.add("hidden");
           aboutSection.classList.add("hidden");
-          // Show selected section
           document.getElementById(link.getAttribute("data-tab")).classList.remove("hidden");
         });
       });
@@ -296,13 +320,22 @@
       const popupModal = document.getElementById("popupModal");
       const modalContent = document.getElementById("modalContent");
       const closeModal = document.getElementById("closeModal");
+
       closeModal.addEventListener("click", () => {
-        popupModal.classList.add("hidden");
+        popupModal.classList.add("fadeOut");
+        setTimeout(() => {
+          popupModal.classList.add("hidden");
+          popupModal.classList.remove("fadeOut");
+        }, 500); // Duration should match the animation duration
       });
-      // Optionally, close modal when clicking outside the modal content
+      // Close modal when clicking outside the modal content
       popupModal.addEventListener("click", (e) => {
         if (e.target === popupModal) {
-          popupModal.classList.add("hidden");
+          popupModal.classList.add("fadeOut");
+          setTimeout(() => {
+            popupModal.classList.add("hidden");
+            popupModal.classList.remove("fadeOut");
+          }, 500);
         }
       });
 
@@ -323,15 +356,16 @@
           alert("Please enter a Discord User ID.");
           return;
         }
-
-        // Optionally, you could display a loading indicator here
+        // Optionally, display a loading indicator inside the modal
+        modalContent.innerHTML = `<p class="text-center text-gray-300">Looking up...</p>`;
+        popupModal.classList.remove("hidden");
+        popupModal.style.animation = "modalFadeIn 0.5s forwards";
 
         try {
           const response = await fetch(`/api/lookup?userId=${userId}`);
           if (!response.ok) {
             const errorData = await response.json();
             modalContent.innerHTML = `<p class="text-center text-red-400">Error: ${errorData.error}</p>`;
-            popupModal.classList.remove("hidden");
             return;
           }
           const data = await response.json();
@@ -374,7 +408,7 @@
           // Optionally celebrate a successful lookup with confetti
           confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
 
-          // Build the popup HTML content
+          // Build the modal popup HTML content
           const popupHTML = `
             <div class="relative bg-gray-900 rounded-lg overflow-hidden shadow-xl">
               <!-- Banner Section -->
@@ -399,11 +433,9 @@
             </div>
           `;
           modalContent.innerHTML = popupHTML;
-          popupModal.classList.remove("hidden");
         } catch (error) {
           console.error(error);
           modalContent.innerHTML = `<p class="text-center text-red-400">An error occurred while looking up the user.</p>`;
-          popupModal.classList.remove("hidden");
         }
       });
     </script>
