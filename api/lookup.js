@@ -1,3 +1,4 @@
+// api/lookup.js
 const fetch = require("node-fetch");
 
 module.exports = async (req, res) => {
@@ -8,9 +9,7 @@ module.exports = async (req, res) => {
 
   const BOT_TOKEN = process.env.BOT_TOKEN;
   if (!BOT_TOKEN) {
-    return res
-      .status(500)
-      .json({ error: "BOT_TOKEN environment variable is not set" });
+    return res.status(500).json({ error: "BOT_TOKEN environment variable is not set" });
   }
 
   try {
