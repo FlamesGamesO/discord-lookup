@@ -298,7 +298,7 @@
           const data = await response.json();
           const createdAt = getCreationDateFromSnowflake(data.id);
 
-          // Build the profile picture URL
+          // Build the profile picture URL (pfp)
           const pfpUrl = data.avatar
             ? `https://cdn.discordapp.com/avatars/${data.id}/${data.avatar}${
                 data.avatar.startsWith("a_") ? ".gif" : ".png"
@@ -312,7 +312,7 @@
               }`
             : null;
 
-          // Use accent_color if available for banner fallback
+          // Fallback banner background using accent_color or a default dark gray
           const bannerBackground = bannerUrl
             ? ""
             : data.accent_color
