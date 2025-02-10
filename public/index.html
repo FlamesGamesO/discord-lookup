@@ -4,6 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Discord User Lookup</title>
+    
+    <!-- Browser Icon -->
+    <link
+      rel="icon"
+      type="image/png"
+      href="https://media.discordapp.net/attachments/1327406738793566292/1338540303233056870/Untitled_design_1.png?ex=67ab744d&is=67aa22cd&hm=d2c517e0a99e00e7d9068681edaf3749341143c4c0052ffb3bc7429929887ca9&=&format=webp&quality=lossless&width=1000&height=1000"
+    />
 
     <!-- Buy Me a Coffee Button (positioned via fixed container) -->
     <style>
@@ -183,7 +190,7 @@
       /* Instructions text styling */
       .instructions {
         font-size: 0.85rem;
-        color: #d1d5db; /* Tailwind gray-300 */
+        color: #d1d5db;
         text-align: center;
         margin-top: 1rem;
       }
@@ -245,7 +252,7 @@
           </form>
           <!-- Instructions on how to get a Discord User ID -->
           <p class="instructions">
-            To get a Discord User ID, enable Developer Mode in Discord (User Settings > Advanced > Developer Mode), then right-click on a user and select "Copy ID".
+            To get a Discord User ID, enable Developer Mode in Discord (User Settings &gt; Advanced &gt; Developer Mode), then right-click on a user and select "Copy ID".
           </p>
         </div>
       </section>
@@ -346,7 +353,6 @@
           popupModal.style.display = "none";
         }, 500);
       });
-
       // Close modal when clicking outside the modal content
       popupModal.addEventListener("click", (e) => {
         if (e.target === popupModal) {
@@ -409,10 +415,7 @@
           const bannerBackground = bannerUrl
             ? ""
             : data.accent_color
-            ? `background-color: #${data.accent_color
-                .toString(16)
-                .padStart(6, "0")
-                .toUpperCase()};`
+            ? `background-color: #${data.accent_color.toString(16).padStart(6, "0").toUpperCase()};`
             : "background-color: #2d2d2d;";
 
           // Determine banner section content
