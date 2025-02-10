@@ -123,7 +123,6 @@
         box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
       }
       /* Modal Popup Styles */
-      /* The modal container is hidden by default using inline style */
       #popupModal {
         position: fixed;
         inset: 0;
@@ -181,6 +180,13 @@
         z-index: 10;
         color: #ffffff;
       }
+      /* Instructions text styling */
+      .instructions {
+        font-size: 0.85rem;
+        color: #d1d5db; /* Tailwind gray-300 */
+        text-align: center;
+        margin-top: 1rem;
+      }
     </style>
   </head>
   <body class="relative min-h-screen flex flex-col">
@@ -237,6 +243,10 @@
               Lookup User
             </button>
           </form>
+          <!-- Instructions on how to get a Discord User ID -->
+          <p class="instructions">
+            To get a Discord User ID, enable Developer Mode in Discord (User Settings > Advanced > Developer Mode), then right-click on a user and select "Copy ID".
+          </p>
         </div>
       </section>
 
@@ -273,21 +283,20 @@
 
     <!-- JAVASCRIPT -->
     <script>
-      // Ensure the popup stays hidden on initial load
+      // Ensure the modal is hidden by default (it uses display: none)
       document.getElementById("popupModal").style.display = "none";
 
       /* Navigation Handlers */
       const navLinks = document.querySelectorAll(".nav-link");
       const lookupSection = document.getElementById("lookupSection");
       const aboutSection = document.getElementById("aboutSection");
+
       navLinks.forEach(link => {
         link.addEventListener("click", () => {
           navLinks.forEach(l => l.classList.remove("nav-active"));
           link.classList.add("nav-active");
-          // Hide all sections
           lookupSection.classList.add("hidden");
           aboutSection.classList.add("hidden");
-          // Show selected section
           document.getElementById(link.getAttribute("data-tab")).classList.remove("hidden");
         });
       });
@@ -337,6 +346,7 @@
           popupModal.style.display = "none";
         }, 500);
       });
+
       // Close modal when clicking outside the modal content
       popupModal.addEventListener("click", (e) => {
         if (e.target === popupModal) {
@@ -365,6 +375,7 @@
           alert("Please enter a Discord User ID.");
           return;
         }
+
         // Show the modal with a loading message
         modalContent.innerHTML = `<p class="text-center text-gray-300">Looking up...</p>`;
         popupModal.style.display = "flex";
