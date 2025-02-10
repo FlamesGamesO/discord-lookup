@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Discord User Lookup</title>
+
+    <!-- Buy Me a Coffee Button (positioned in body via fixed container) -->
+    <style>
+      .buy-me-coffee {
+        position: fixed;
+        bottom: 1.5rem;
+        right: 1.5rem;
+        z-index: 50;
+      }
+    </style>
+
+    <!-- Import Montserrat for striking header text -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Canvas-Confetti for celebration effects -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- tsParticles for interactive particle background -->
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2/tsparticles.bundle.min.js"></script>
+
+    <style>
+      /* Global Styles & Customizations */
+      body {
+        font-family: "Montserrat", sans-serif;
+        cursor: none;
+        background: black;
+        overflow-x: hidden;
+        /* Grid background with moving lines */
+        background-image: 
+          linear-gradient(0deg, transparent 24%, rgba(102,255,204,0.1) 25%, rgba(102,255,204,0.1) 26%, transparent 27%, transparent 74%, rgba(102,255,204,0.1) 75%, rgba(102,255,204,0.1) 76%, transparent 77%, transparent),
+          linear-gradient(90deg, transparent 24%, rgba(102,255,204,0.1) 25%, rgba(102,255,204,0.1) 26%, transparent 27%, transparent 74%, rgba(102,255,204,0.1) 75%, rgba(102,255,204,0.1) 76%, transparent 77%, transparent);
+        background-size: 50px 50px;
+        animation: gridMove 30s linear infinite;
+      }
+      @keyframes gridMove {
+        from { background-position: 0 0; }
+        to { background-position: 50px 50px; }
+      }
+      ::selection {
+        background: #66ffcc;
+        color: black;
+      }
+      ::-moz-selection {
+        background: #66ffcc;
+        color: black;
+      }
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: black;
+      }
+      ::-webkit-scrollbar-thumb {
+        background-color: #66ffcc;
+        border-radius: 10px;
+      }
+      /* Custom Cursor */
+      #customCursor {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #66ffcc;
+        pointer-events: none;
+        mix-blend-mode: difference;
+        transform: translate(-50%, -50%);
+        transition: transform 0.1s ease-out, opacity 0.2s;
+        z-index: 9999;
+      }
+      /* Typewriter Header & Glitch Effects */
+      .typewriter h1 {
+        color: #66ffcc;
+        overflow: hidden;
+        border-right: 0.15em solid #66ffcc;
+        white-space: nowrap;
+        margin: 0 auto;
+        letter-spacing: 0.15em;
+        font-size: 3rem;
+        animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+      }
+      @keyframes typing {
+        from { width: 0; }
+        to { width: 100%; }
+      }
+      @keyframes blink-caret {
+        from, to { border-color: transparent; }
+        50% { border-color: #66ffcc; }
+      }
+      .glitch:hover h1 {
+        animation: glitch 1s infinite;
+      }
+      @keyframes glitch {
+        0% { text-shadow: 2px 2px #33ffcc, -2px -2px #66ffcc; }
+        20% { text-shadow: -2px 2px #33ffcc, 2px -2px #66ffcc; }
+        40% { text-shadow: 2px -2px #33ffcc, -2px 2px #66ffcc; }
+        60% { text-shadow: -2px -2px #33ffcc, 2px 2px #66ffcc; }
+        80% { text-shadow: 2px 2px #33ffcc, -2px -2px #66ffcc; }
+        100% { text-shadow: -2px 2px #33ffcc, 2px -2px #66ffcc; }
+      }
+      /* Fade-in Animation for Sections */
+      @keyframes fadeInDown {
+        0% { opacity: 0; transform: translateY(-20px); }
+        100% { opacity: 1; transform: translateY(0); }
+      }
+      .animate-fadeInDown { animation: fadeInDown 0.8s ease-out; }
+      /* Glassmorphism Card Style */
+      .glass-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(102, 255, 204, 0.5);
+        border-radius: 1rem;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+      }
+    </style>
+  </head>
+  <body class="relative min-h-screen flex flex-col">
+    <!-- Particle Background -->
+    <div id="tsparticles" class="fixed inset-0 z-0"></div>
+    <!-- Custom Cursor -->
+    <div id="customCursor"></div>
+    <!-- Buy Me a Coffee Button -->
+    <div class="buy-me-coffee z-50">
+      <a
+        href="https://www.buymeacoffee.com/Aura2"
+        target="_blank"
+        class="bg-[#40DCA5] hover:bg-[#33c499] text-black font-bold py-3 px-6 rounded-full shadow-lg shadow-[#40DCA5]/50 border-2 border-black transition-transform transform hover:scale-110"
+      >
+        ☕ Buy Me a Coffee
+      </a>
+    </div>
+    <!-- HEADER & NAVIGATION -->
+    <header class="text-center py-6 relative z-10 glitch">
+      <div class="typewriter">
+        <h1>Discord Lookup</h1>
+      </div>
+      <nav class="mt-4">
+        <ul class="flex justify-center space-x-8 text-lg font-medium text-gray-300">
+          <li class="nav-link nav-active" data-tab="lookupSection">Lookup</li>
+          <li class="nav-link" data-tab="aboutSection">About</li>
+        </ul>
+      </nav>
+    </header>
+
+    <!-- MAIN CONTENT SECTIONS -->
+    <main class="flex-grow relative z-10 px-4">
+      <!-- Discord Lookup Section -->
+      <section id="lookupSection" class="animate-fadeInDown">
+        <div class="glass-card p-8 max-w-lg mx-auto shadow-2xl">
+          <h2 class="text-2xl font-bold text-[#66ffcc] mb-4 text-center">User ID Lookup</h2>
+          <form id="lookupForm" class="space-y-4">
+            <div>
+              <label for="userId" class="block text-gray-200 font-medium mb-2">
+                Enter Discord User ID
+              </label>
+              <input
+                type="text"
+                id="userId"
+                name="userId"
+                placeholder="e.g., 1060558266872123454"
+                class="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-[#66ffcc] bg-black text-white"
+              />
+            </div>
+            <button
+              type="submit"
+              class="w-full bg-gradient-to-r from-[#66ffcc] to-[#33ffcc] hover:from-[#5ae6c7] hover:to-[#2de6c7] text-black font-bold py-2 rounded-md transition transform hover:scale-105"
+            >
+              Lookup User
+            </button>
+          </form>
+          <div id="lookupResult" class="mt-6"></div>
+        </div>
+      </section>
+
+      <!-- About Section -->
+      <section id="aboutSection" class="hidden animate-fadeInDown">
+        <div class="glass-card p-8 max-w-2xl mx-auto shadow-2xl">
+          <h2 class="text-2xl font-bold text-[#66ffcc] mb-4 text-center">
+            About Discord Lookup
+          </h2>
+          <p class="text-white text-lg leading-relaxed">
+            This tool lets you fetch public details about any Discord user using their user ID.
+            It leverages Discord’s API via a secure backend proxy that attaches the required Bot token.
+            (Due to Discord’s authentication and CORS policies, direct client‑side lookups aren’t allowed.)
+          </p>
+          <p class="mt-4 text-white text-lg leading-relaxed">
+            Enjoy the interactive experience complete with dynamic particle backgrounds, custom cursors, and cool glitch animations!
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="text-center py-4 text-gray-400 relative z-10">
+      &copy; 2025 Discord Lookup. All rights reserved.
+    </footer>
+
+    <!-- JAVASCRIPT -->
+    <script>
+      /* =======================================================
+         NAVIGATION HANDLERS
+      ======================================================= */
+      const navLinks = document.querySelectorAll(".nav-link");
+      const lookupSection = document.getElementById("lookupSection");
+      const aboutSection = document.getElementById("aboutSection");
+
+      navLinks.forEach(link => {
+        link.addEventListener("click", () => {
+          navLinks.forEach(l => l.classList.remove("nav-active"));
+          link.classList.add("nav-active");
+          // Hide all sections
+          lookupSection.classList.add("hidden");
+          aboutSection.classList.add("hidden");
+          // Show selected section
+          document.getElementById(link.getAttribute("data-tab")).classList.remove("hidden");
+        });
+      });
+
+      /* =======================================================
+         Custom Cursor Handler
+      ======================================================= */
+      const customCursor = document.getElementById("customCursor");
+      document.addEventListener("mousemove", (e) => {
+        customCursor.style.top = e.clientY + "px";
+        customCursor.style.left = e.clientX + "px";
+      });
+      document.addEventListener("mouseleave", () => {
+        customCursor.style.opacity = 0;
+      });
+      document.addEventListener("mouseenter", () => {
+        customCursor.style.opacity = 1;
+      });
+
+      /* =======================================================
+         Initialize tsParticles for Background Particles
+      ======================================================= */
+      tsParticles.load("tsparticles", {
+        fpsLimit: 60,
+        background: { color: { value: "transparent" } },
+        particles: {
+          number: { value: 60, density: { enable: true, area: 800 } },
+          color: { value: "#66ffcc" },
+          shape: { type: "circle" },
+          opacity: { value: 0.5, random: true },
+          size: { value: 3, random: true },
+          move: {
+            enable: true,
+            speed: 1,
+            direction: "none",
+            outModes: { default: "out" }
+          }
+        },
+        detectRetina: true
+      });
+
+      /* =======================================================
+         Discord Lookup Functionality
+         (This code calls your backend proxy at /api/lookup)
+      ======================================================= */
+
+      // Helper: Decode Discord badges from public_flags (if available)
+      function decodeBadges(flags) {
+        const badges = [];
+        const badgeMap = {
+          1: "Discord Employee",
+          2: "Partnered Server Owner",
+          4: "HypeSquad Events",
+          8: "Bug Hunter Level 1",
+          64: "Bug Hunter Level 2",
+          128: "Early Supporter",
+          256: "Team User",
+          512: "System",
+          1024: "Verified Bot",
+          4096: "Early Verified Bot Developer"
+        };
+        for (const [flag, name] of Object.entries(badgeMap)) {
+          if ((flags & flag) === Number(flag)) {
+            badges.push(name);
+          }
+        }
+        return badges;
+      }
+
+      // Helper: Compute creation date from Discord snowflake
+      function getCreationDateFromSnowflake(snowflake) {
+        const discordEpoch = 1420070400000;
+        const snowflakeBigInt = BigInt(snowflake);
+        const timestamp = Number((snowflakeBigInt >> 22n) + BigInt(discordEpoch));
+        return new Date(timestamp).toUTCString();
+      }
+
+      const lookupForm = document.getElementById("lookupForm");
+      const lookupResult = document.getElementById("lookupResult");
+
+      lookupForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const userId = document.getElementById("userId").value.trim();
+        if (!userId) {
+          alert("Please enter a Discord User ID.");
+          return;
+        }
+        lookupResult.innerHTML = '<p class="text-center text-gray-300">Looking up...</p>';
+
+        try {
+          const response = await fetch(`/api/lookup?userId=${userId}`);
+          if (!response.ok) {
+            const errorData = await response.json();
+            lookupResult.innerHTML = `<p class="text-center text-red-400">Error: ${errorData.error}</p>`;
+            return;
+          }
+          const data = await response.json();
+
+          // Compute creation date using the Discord snowflake
+          const createdAt = getCreationDateFromSnowflake(data.id);
+          // Decode badges if public_flags exists
+          const badges = data.public_flags ? decodeBadges(data.public_flags) : [];
+          // Use accent_color (if available) for banner color display
+          const bannerColor = data.accent_color
+            ? `#${data.accent_color.toString(16).padStart(6, "0").toUpperCase()}`
+            : "None";
+
+          // Optionally celebrate a successful lookup with confetti
+          confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+
+          lookupResult.innerHTML = `
+            <div class="p-4 text-white">
+              <p><strong>User ID:</strong> ${data.id}</p>
+              <p><strong>Username:</strong> ${data.username}#${data.discriminator}</p>
+              <p><strong>Badges:</strong> ${badges.length ? badges.join(", ") : "None"}</p>
+              <p><strong>Created:</strong> ${createdAt}</p>
+              <p><strong>Banner Color:</strong> ${bannerColor !== "None" ? `<span class="inline-block w-4 h-4 rounded-full mr-1" style="background-color: ${bannerColor};"></span> ${bannerColor}` : "None"}</p>
+            </div>
+          `;
+        } catch (error) {
+          console.error(error);
+          lookupResult.innerHTML = `<p class="text-center text-red-400">An error occurred while looking up the user.</p>`;
+        }
+      });
+    </script>
+  </body>
+</html>
