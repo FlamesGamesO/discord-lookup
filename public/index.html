@@ -123,16 +123,18 @@
         box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
       }
       /* Modal Popup Styles */
+      /* The modal container is hidden by default using inline style */
       #popupModal {
         position: fixed;
         inset: 0;
-        display: flex;
+        display: none;
         align-items: center;
         justify-content: center;
-        background-color: rgba(0, 0, 0, 0.6);
+        background-color: rgba(0, 0, 0, 0.8);
         z-index: 1000;
-        opacity: 0;
-        transform: translateY(-20px);
+      }
+      #popupModal.active {
+        display: flex;
         animation: modalFadeIn 0.5s forwards;
       }
       #popupModal.fadeOut {
@@ -159,12 +161,15 @@
         }
       }
       #popupModal .modal-content {
-        background: #1f2937; /* Tailwind gray-800 */
+        /* Glass style for modal content */
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
         border-radius: 0.5rem;
         overflow: hidden;
         max-width: 90%;
         width: 400px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.5);
         position: relative;
       }
       #popupModal .close-btn {
@@ -254,7 +259,7 @@
     </main>
 
     <!-- Modal Popup for Results -->
-    <div id="popupModal" class="hidden">
+    <div id="popupModal">
       <div class="modal-content relative">
         <span id="closeModal" class="close-btn">&times;</span>
         <div id="modalContent" class="p-4"></div>
@@ -268,17 +273,21 @@
 
     <!-- JAVASCRIPT -->
     <script>
+      // Ensure the popup stays hidden on initial load
+      document.getElementById("popupModal").style.display = "none";
+
       /* Navigation Handlers */
       const navLinks = document.querySelectorAll(".nav-link");
       const lookupSection = document.getElementById("lookupSection");
       const aboutSection = document.getElementById("aboutSection");
-
       navLinks.forEach(link => {
         link.addEventListener("click", () => {
           navLinks.forEach(l => l.classList.remove("nav-active"));
           link.classList.add("nav-active");
+          // Hide all sections
           lookupSection.classList.add("hidden");
           aboutSection.classList.add("hidden");
+          // Show selected section
           document.getElementById(link.getAttribute("data-tab")).classList.remove("hidden");
         });
       });
@@ -324,17 +333,17 @@
       closeModal.addEventListener("click", () => {
         popupModal.classList.add("fadeOut");
         setTimeout(() => {
-          popupModal.classList.add("hidden");
-          popupModal.classList.remove("fadeOut");
-        }, 500); // Duration should match the animation duration
+          popupModal.classList.remove("active", "fadeOut");
+          popupModal.style.display = "none";
+        }, 500);
       });
       // Close modal when clicking outside the modal content
       popupModal.addEventListener("click", (e) => {
         if (e.target === popupModal) {
           popupModal.classList.add("fadeOut");
           setTimeout(() => {
-            popupModal.classList.add("hidden");
-            popupModal.classList.remove("fadeOut");
+            popupModal.classList.remove("active", "fadeOut");
+            popupModal.style.display = "none";
           }, 500);
         }
       });
@@ -356,10 +365,10 @@
           alert("Please enter a Discord User ID.");
           return;
         }
-        // Optionally, display a loading indicator inside the modal
+        // Show the modal with a loading message
         modalContent.innerHTML = `<p class="text-center text-gray-300">Looking up...</p>`;
-        popupModal.classList.remove("hidden");
-        popupModal.style.animation = "modalFadeIn 0.5s forwards";
+        popupModal.style.display = "flex";
+        popupModal.classList.add("active");
 
         try {
           const response = await fetch(`/api/lookup?userId=${userId}`);
@@ -410,7 +419,7 @@
 
           // Build the modal popup HTML content
           const popupHTML = `
-            <div class="relative bg-gray-900 rounded-lg overflow-hidden shadow-xl">
+            <div class="relative">
               <!-- Banner Section -->
               <div class="h-40 w-full">
                 ${bannerSection}
