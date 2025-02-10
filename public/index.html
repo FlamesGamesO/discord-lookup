@@ -34,7 +34,7 @@
         cursor: none;
         background: black;
         overflow-x: hidden;
-        /* Grid background with moving lines (changed from green to white accents) */
+        /* Grid background with moving lines (green replaced by white accents) */
         background-image: 
           linear-gradient(0deg, transparent 24%, rgba(255,255,255,0.1) 25%, rgba(255,255,255,0.1) 26%, transparent 27%, transparent 74%, rgba(255,255,255,0.1) 75%, rgba(255,255,255,0.1) 76%, transparent 77%, transparent),
           linear-gradient(90deg, transparent 24%, rgba(255,255,255,0.1) 25%, rgba(255,255,255,0.1) 26%, transparent 27%, transparent 74%, rgba(255,255,255,0.1) 75%, rgba(255,255,255,0.1) 76%, transparent 77%, transparent);
@@ -114,7 +114,7 @@
         100% { opacity: 1; transform: translateY(0); }
       }
       .animate-fadeInDown { animation: fadeInDown 0.8s ease-out; }
-      /* Glassmorphism Card Style (changed border accent from green to white) */
+      /* Glassmorphism Card Style (border accent changed to white) */
       .glass-card {
         background: rgba(255, 255, 255, 0.1);
         backdrop-filter: blur(8px);
@@ -296,13 +296,38 @@
             return;
           }
           const data = await response.json();
-
-          // Compute creation date using the Discord snowflake
           const createdAt = getCreationDateFromSnowflake(data.id);
-          // (Optional) Decode badges if public_flags exists
-          // In this version, you can remove badges display if not desired.
-          // const badges = data.public_flags ? decodeBadges(data.public_flags) : [];
-          // Use accent_color (if available) for banner color display
+
+          // Build the profile picture URL
+          const pfpUrl = data.avatar
+            ? `https://cdn.discordapp.com/avatars/${data.id}/${data.avatar}${
+                data.avatar.startsWith("a_") ? ".gif" : ".png"
+              }`
+            : "https://via.placeholder.com/150?text=No+Avatar";
+
+          // Build the banner URL if available
+          const bannerUrl = data.banner
+            ? `https://cdn.discordapp.com/banners/${data.id}/${data.banner}${
+                data.banner.startsWith("a_") ? ".gif" : ".png"
+              }`
+            : null;
+
+          // Use accent_color if available for banner fallback
+          const bannerBackground = bannerUrl
+            ? ""
+            : data.accent_color
+            ? `background-color: #${data.accent_color
+                .toString(16)
+                .padStart(6, "0")
+                .toUpperCase()};`
+            : "background-color: #2d2d2d;";
+
+          // Determine banner section content
+          const bannerSection = bannerUrl
+            ? `<img src="${bannerUrl}" alt="Banner" class="w-full h-full object-cover">`
+            : `<div class="w-full h-full" style="${bannerBackground}"></div>`;
+
+          // Use accent_color for banner color display text (if available)
           const bannerColor = data.accent_color
             ? `#${data.accent_color.toString(16).padStart(6, "0").toUpperCase()}`
             : "None";
@@ -311,11 +336,26 @@
           confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
 
           lookupResult.innerHTML = `
-            <div class="p-4 text-white">
-              <p><strong>User ID:</strong> ${data.id}</p>
-              <p><strong>Username:</strong> ${data.username}#${data.discriminator}</p>
-              <p><strong>Created:</strong> ${createdAt}</p>
-              <p><strong>Banner Color:</strong> ${bannerColor !== "None" ? `<span class="inline-block w-4 h-4 rounded-full mr-1" style="background-color: ${bannerColor};"></span> ${bannerColor}` : "None"}</p>
+            <div class="relative bg-gray-800 rounded-lg overflow-hidden shadow-xl max-w-lg mx-auto">
+              <!-- Banner Section -->
+              <div class="h-40 w-full">
+                ${bannerSection}
+              </div>
+              <!-- Profile Picture (overlapping banner) -->
+              <div class="absolute top-28 left-1/2 transform -translate-x-1/2">
+                <img src="${pfpUrl}" alt="Profile Picture" class="w-24 h-24 rounded-full border-4 border-black">
+              </div>
+              <!-- Details Section -->
+              <div class="mt-16 pt-12 pb-4 text-center">
+                <p class="text-xl font-bold">${data.username}#${data.discriminator}</p>
+                <p class="text-sm">User ID: ${data.id}</p>
+                <p class="text-sm">Created: ${createdAt}</p>
+                <p class="text-sm">Banner Color: ${
+                  bannerColor !== "None"
+                    ? `<span class="inline-block w-4 h-4 rounded-full mr-1" style="background-color: ${bannerColor};"></span> ${bannerColor}`
+                    : "None"
+                }</p>
+              </div>
             </div>
           `;
         } catch (error) {
