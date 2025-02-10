@@ -3,9 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Discord User Lookup</title>
+    <title>Discord Lookup</title>
 
-    <!-- Buy Me a Coffee Button (positioned in body via fixed container) -->
+    <!-- Buy Me a Coffee Button Styles -->
     <style>
       .buy-me-coffee {
         position: fixed;
@@ -15,7 +15,7 @@
       }
     </style>
 
-    <!-- Import Montserrat for striking header text -->
+    <!-- Import Montserrat for a striking header -->
     <link
       href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap"
       rel="stylesheet"
@@ -34,7 +34,7 @@
         cursor: none;
         background: black;
         overflow-x: hidden;
-        /* Grid background with moving lines */
+        /* Animated grid background */
         background-image: 
           linear-gradient(0deg, transparent 24%, rgba(102,255,204,0.1) 25%, rgba(102,255,204,0.1) 26%, transparent 27%, transparent 74%, rgba(102,255,204,0.1) 75%, rgba(102,255,204,0.1) 76%, transparent 77%, transparent),
           linear-gradient(90deg, transparent 24%, rgba(102,255,204,0.1) 25%, rgba(102,255,204,0.1) 26%, transparent 27%, transparent 74%, rgba(102,255,204,0.1) 75%, rgba(102,255,204,0.1) 76%, transparent 77%, transparent);
@@ -151,13 +151,14 @@
         </ul>
       </nav>
     </header>
-
     <!-- MAIN CONTENT SECTIONS -->
     <main class="flex-grow relative z-10 px-4">
-      <!-- Discord Lookup Section -->
+      <!-- Lookup Section -->
       <section id="lookupSection" class="animate-fadeInDown">
         <div class="glass-card p-8 max-w-lg mx-auto shadow-2xl">
-          <h2 class="text-2xl font-bold text-[#66ffcc] mb-4 text-center">User ID Lookup</h2>
+          <h2 class="text-2xl font-bold text-[#66ffcc] mb-4 text-center">
+            User ID Lookup
+          </h2>
           <form id="lookupForm" class="space-y-4">
             <div>
               <label for="userId" class="block text-gray-200 font-medium mb-2">
@@ -181,7 +182,6 @@
           <div id="lookupResult" class="mt-6"></div>
         </div>
       </section>
-
       <!-- About Section -->
       <section id="aboutSection" class="hidden animate-fadeInDown">
         <div class="glass-card p-8 max-w-2xl mx-auto shadow-2xl">
@@ -199,36 +199,27 @@
         </div>
       </section>
     </main>
-
     <!-- FOOTER -->
     <footer class="text-center py-4 text-gray-400 relative z-10">
       &copy; 2025 Discord Lookup. All rights reserved.
     </footer>
-
     <!-- JAVASCRIPT -->
     <script>
-      /* =======================================================
-         NAVIGATION HANDLERS
-      ======================================================= */
+      /* Navigation Handlers */
       const navLinks = document.querySelectorAll(".nav-link");
       const lookupSection = document.getElementById("lookupSection");
       const aboutSection = document.getElementById("aboutSection");
-
       navLinks.forEach(link => {
         link.addEventListener("click", () => {
           navLinks.forEach(l => l.classList.remove("nav-active"));
           link.classList.add("nav-active");
-          // Hide all sections
           lookupSection.classList.add("hidden");
           aboutSection.classList.add("hidden");
-          // Show selected section
           document.getElementById(link.getAttribute("data-tab")).classList.remove("hidden");
         });
       });
 
-      /* =======================================================
-         Custom Cursor Handler
-      ======================================================= */
+      /* Custom Cursor Handler */
       const customCursor = document.getElementById("customCursor");
       document.addEventListener("mousemove", (e) => {
         customCursor.style.top = e.clientY + "px";
@@ -241,9 +232,7 @@
         customCursor.style.opacity = 1;
       });
 
-      /* =======================================================
-         Initialize tsParticles for Background Particles
-      ======================================================= */
+      /* Initialize tsParticles for Background Particles */
       tsParticles.load("tsparticles", {
         fpsLimit: 60,
         background: { color: { value: "transparent" } },
@@ -253,45 +242,12 @@
           shape: { type: "circle" },
           opacity: { value: 0.5, random: true },
           size: { value: 3, random: true },
-          move: {
-            enable: true,
-            speed: 1,
-            direction: "none",
-            outModes: { default: "out" }
-          }
+          move: { enable: true, speed: 1, direction: "none", outModes: { default: "out" } }
         },
         detectRetina: true
       });
 
-      /* =======================================================
-         Discord Lookup Functionality
-         (This code calls your backend proxy at /api/lookup)
-      ======================================================= */
-
-      // Helper: Decode Discord badges from public_flags (if available)
-      function decodeBadges(flags) {
-        const badges = [];
-        const badgeMap = {
-          1: "Discord Employee",
-          2: "Partnered Server Owner",
-          4: "HypeSquad Events",
-          8: "Bug Hunter Level 1",
-          64: "Bug Hunter Level 2",
-          128: "Early Supporter",
-          256: "Team User",
-          512: "System",
-          1024: "Verified Bot",
-          4096: "Early Verified Bot Developer"
-        };
-        for (const [flag, name] of Object.entries(badgeMap)) {
-          if ((flags & flag) === Number(flag)) {
-            badges.push(name);
-          }
-        }
-        return badges;
-      }
-
-      // Helper: Compute creation date from Discord snowflake
+      /* Helper: Compute creation date from Discord snowflake */
       function getCreationDateFromSnowflake(snowflake) {
         const discordEpoch = 1420070400000;
         const snowflakeBigInt = BigInt(snowflake);
@@ -299,6 +255,7 @@
         return new Date(timestamp).toUTCString();
       }
 
+      /* Discord Lookup Functionality */
       const lookupForm = document.getElementById("lookupForm");
       const lookupResult = document.getElementById("lookupResult");
 
@@ -309,8 +266,8 @@
           alert("Please enter a Discord User ID.");
           return;
         }
-        lookupResult.innerHTML = '<p class="text-center text-gray-300">Looking up...</p>';
-
+        lookupResult.innerHTML =
+          '<p class="text-center text-gray-300">Looking up...</p>';
         try {
           const response = await fetch(`/api/lookup?userId=${userId}`);
           if (!response.ok) {
@@ -320,25 +277,39 @@
           }
           const data = await response.json();
 
-          // Compute creation date using the Discord snowflake
+          // Compute creation date from Discord snowflake.
           const createdAt = getCreationDateFromSnowflake(data.id);
-          // Decode badges if public_flags exists
-          const badges = data.public_flags ? decodeBadges(data.public_flags) : [];
-          // Use accent_color (if available) for banner color display
+
+          // Build the Avatar URL if the user has one.
+          const avatarUrl = data.avatar
+            ? `https://cdn.discordapp.com/avatars/${data.id}/${data.avatar}${
+                data.avatar.startsWith("a_") ? ".gif" : ".png"
+              }`
+            : null;
+
+          // Use accent_color (if available) for banner color display.
           const bannerColor = data.accent_color
             ? `#${data.accent_color.toString(16).padStart(6, "0").toUpperCase()}`
             : "None";
 
-          // Optionally celebrate a successful lookup with confetti
+          // Celebrate a successful lookup with confetti.
           confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
 
           lookupResult.innerHTML = `
             <div class="p-4 text-white">
               <p><strong>User ID:</strong> ${data.id}</p>
               <p><strong>Username:</strong> ${data.username}#${data.discriminator}</p>
-              <p><strong>Badges:</strong> ${badges.length ? badges.join(", ") : "None"}</p>
+              ${
+                avatarUrl
+                  ? `<p><strong>Avatar:</strong> <img src="${avatarUrl}" alt="Avatar" class="w-12 h-12 rounded-full inline-block mr-2"></p>`
+                  : ""
+              }
               <p><strong>Created:</strong> ${createdAt}</p>
-              <p><strong>Banner Color:</strong> ${bannerColor !== "None" ? `<span class="inline-block w-4 h-4 rounded-full mr-1" style="background-color: ${bannerColor};"></span> ${bannerColor}` : "None"}</p>
+              <p><strong>Banner Color:</strong> ${
+                bannerColor !== "None"
+                  ? `<span class="inline-block w-4 h-4 rounded-full mr-1" style="background-color: ${bannerColor};"></span> ${bannerColor}`
+                  : "None"
+              }</p>
             </div>
           `;
         } catch (error) {
