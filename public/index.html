@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Discord User Lookup</title>
 
-    <!-- Buy Me a Coffee Button (positioned in body via fixed container) -->
+    <!-- Buy Me a Coffee Button (positioned via fixed container) -->
     <style>
       .buy-me-coffee {
         position: fixed;
@@ -122,6 +122,35 @@
         border-radius: 1rem;
         box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
       }
+      /* Modal Popup Styles */
+      #popupModal {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(0, 0, 0, 0.6);
+        z-index: 1000;
+      }
+      #popupModal.hidden {
+        display: none;
+      }
+      #popupModal .modal-content {
+        background: #1f2937; /* Tailwind gray-800 */
+        border-radius: 0.5rem;
+        overflow: hidden;
+        max-width: 90%;
+        width: 400px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        position: relative;
+      }
+      #popupModal .close-btn {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.75rem;
+        font-size: 1.5rem;
+        cursor: pointer;
+      }
     </style>
   </head>
   <body class="relative min-h-screen flex flex-col">
@@ -152,7 +181,7 @@
       </nav>
     </header>
 
-    <!-- MAIN CONTENT SECTIONS -->
+    <!-- MAIN CONTENT SECTION -->
     <main class="flex-grow relative z-10 px-4">
       <!-- Discord Lookup Section -->
       <section id="lookupSection" class="animate-fadeInDown">
@@ -178,7 +207,6 @@
               Lookup User
             </button>
           </form>
-          <div id="lookupResult" class="mt-6"></div>
         </div>
       </section>
 
@@ -200,6 +228,14 @@
       </section>
     </main>
 
+    <!-- Modal Popup for Results -->
+    <div id="popupModal" class="hidden">
+      <div class="modal-content relative">
+        <span id="closeModal" class="close-btn text-white">&times;</span>
+        <div id="modalContent" class="p-4"></div>
+      </div>
+    </div>
+
     <!-- FOOTER -->
     <footer class="text-center py-4 text-gray-400 relative z-10">
       &copy; 2025 Discord Lookup. All rights reserved.
@@ -207,13 +243,10 @@
 
     <!-- JAVASCRIPT -->
     <script>
-      /* =======================================================
-         NAVIGATION HANDLERS
-      ======================================================= */
+      /* Navigation Handlers */
       const navLinks = document.querySelectorAll(".nav-link");
       const lookupSection = document.getElementById("lookupSection");
       const aboutSection = document.getElementById("aboutSection");
-
       navLinks.forEach(link => {
         link.addEventListener("click", () => {
           navLinks.forEach(l => l.classList.remove("nav-active"));
@@ -226,9 +259,7 @@
         });
       });
 
-      /* =======================================================
-         Custom Cursor Handler
-      ======================================================= */
+      /* Custom Cursor Handler */
       const customCursor = document.getElementById("customCursor");
       document.addEventListener("mousemove", (e) => {
         customCursor.style.top = e.clientY + "px";
@@ -241,9 +272,7 @@
         customCursor.style.opacity = 1;
       });
 
-      /* =======================================================
-         Initialize tsParticles for Background Particles
-      ======================================================= */
+      /* Initialize tsParticles for Background Particles */
       tsParticles.load("tsparticles", {
         fpsLimit: 60,
         background: { color: { value: "transparent" } },
@@ -263,12 +292,21 @@
         detectRetina: true
       });
 
-      /* =======================================================
-         Discord Lookup Functionality
-         (This code calls your backend proxy at /api/lookup)
-      ======================================================= */
+      /* Modal Popup Handlers */
+      const popupModal = document.getElementById("popupModal");
+      const modalContent = document.getElementById("modalContent");
+      const closeModal = document.getElementById("closeModal");
+      closeModal.addEventListener("click", () => {
+        popupModal.classList.add("hidden");
+      });
+      // Optionally, close modal when clicking outside the modal content
+      popupModal.addEventListener("click", (e) => {
+        if (e.target === popupModal) {
+          popupModal.classList.add("hidden");
+        }
+      });
 
-      // Helper: Compute creation date from Discord snowflake
+      /* Helper: Compute creation date from Discord snowflake */
       function getCreationDateFromSnowflake(snowflake) {
         const discordEpoch = 1420070400000;
         const snowflakeBigInt = BigInt(snowflake);
@@ -276,9 +314,8 @@
         return new Date(timestamp).toUTCString();
       }
 
+      /* Discord Lookup Functionality */
       const lookupForm = document.getElementById("lookupForm");
-      const lookupResult = document.getElementById("lookupResult");
-
       lookupForm.addEventListener("submit", async (e) => {
         e.preventDefault();
         const userId = document.getElementById("userId").value.trim();
@@ -286,13 +323,15 @@
           alert("Please enter a Discord User ID.");
           return;
         }
-        lookupResult.innerHTML = '<p class="text-center text-gray-300">Looking up...</p>';
+
+        // Optionally, you could display a loading indicator here
 
         try {
           const response = await fetch(`/api/lookup?userId=${userId}`);
           if (!response.ok) {
             const errorData = await response.json();
-            lookupResult.innerHTML = `<p class="text-center text-red-400">Error: ${errorData.error}</p>`;
+            modalContent.innerHTML = `<p class="text-center text-red-400">Error: ${errorData.error}</p>`;
+            popupModal.classList.remove("hidden");
             return;
           }
           const data = await response.json();
@@ -335,8 +374,9 @@
           // Optionally celebrate a successful lookup with confetti
           confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
 
-          lookupResult.innerHTML = `
-            <div class="relative bg-gray-900 rounded-lg overflow-hidden shadow-xl max-w-lg mx-auto">
+          // Build the popup HTML content
+          const popupHTML = `
+            <div class="relative bg-gray-900 rounded-lg overflow-hidden shadow-xl">
               <!-- Banner Section -->
               <div class="h-40 w-full">
                 ${bannerSection}
@@ -358,9 +398,12 @@
               </div>
             </div>
           `;
+          modalContent.innerHTML = popupHTML;
+          popupModal.classList.remove("hidden");
         } catch (error) {
           console.error(error);
-          lookupResult.innerHTML = `<p class="text-center text-red-400">An error occurred while looking up the user.</p>`;
+          modalContent.innerHTML = `<p class="text-center text-red-400">An error occurred while looking up the user.</p>`;
+          popupModal.classList.remove("hidden");
         }
       });
     </script>
